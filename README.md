@@ -11,6 +11,8 @@ Obs: Por ser um cluster com fins didáticos alguns pontos não foram levados em 
 
  - Foi usado o namespace default
  - Namespace (dev/homo/prod)
+ - Foi usado um banco de dados em container, mas o recomendado é usar banco de dados
+de Cloud Services;
  - Kind **Secret**, usado como uma minima proteção para adicionar password ou chaves, 
 mas o ideal é usar um solução de vault presente em cloud services;
 
