@@ -5,7 +5,7 @@ Kubernetes Manifests para criação do cluster com os seguintes containers:
 - Postgres container;
 - Microservice Kotlin [link](https://github.com/adrmarciao/account-hexa-service-kotlin);
 - Microservice Java (Em desenvolvimento);
-- Mensageria usando Kafka (Em desenvolvimento);
+- Mensageria usando Kafka;
 
 Obs: Por ser um cluster com fins didáticos alguns pontos não foram levados em consideração:
 

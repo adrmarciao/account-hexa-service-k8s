@@ -7,4 +7,34 @@ data:
   POSTGRES_USER: "postgres"
   POSTGRES_PASSWORD: "123456"
   POSTGRES_DB: "db"
+  KAFKA_BASE_URL: "kafka-service:9093"
   PGDATA: /var/lib/postgresql/data/pgdata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-koltin-balancer
+spec:
+  selector:
+    app: spring-kotlin-app
+    version: 0.2.0
+  ports:
+    - protocol: TCP
+      name: "application"
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kfka-kowl-balancer
+spec:
+  selector:
+    message-drive: kowl
+  ports:
+    - protocol: TCP
+      name: "kowl"
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
