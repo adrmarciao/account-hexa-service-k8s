@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      message-drive: zookeeper
+  template:
+    metadata:
+      labels:
+        message-drive: zookeeper
+    spec:
+      containers:
+        - image: bitnami/zookeeper:latest
+          name: zookeeper
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+          ports:
+            - containerPort: 2181
+              name: zookeeper
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      message-drive: kafka
+  template:
+    metadata:
+      labels:
+        message-drive: kafka
+    spec:
+      containers:
+        - image: bitnami/kafka:latest
+          name: kafka
+          env:
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+              value: "CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT"
+            - name: KAFKA_CFG_LISTENERS
+              value: "CLIENT://:9092,EXTERNAL://:9093"
+            - name: KAFKA_CFG_ADVERTISED_LISTENERS
+              value: "CLIENT://127.0.0.1:9092,EXTERNAL://kafka-service:9093"
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: "zookeeper-service:2181"
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+            - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+              value: "CLIENT"
+          ports:
+            - containerPort: 9092
+              name: kafka-client
+            - containerPort: 9093
+              name: kafka-external
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kowl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      message-drive: kowl
+  template:
+    metadata:
+      labels:
+        message-drive: kowl
+    spec:
+      containers:
+        - image: quay.io/cloudhut/kowl:master
+          name: kowl
+          env:
+            - name: KAFKA_BROKERS
+              value: "kafka-service:9093"
+          ports:
+            - containerPort: 8080
+              name: kowl
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-service
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 2181
+      targetPort: 2181
+  selector:
+    message-drive: zookeeper
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      name: "kafka-client"
+      port: 9092
+      targetPort: 9092
+    - protocol: TCP
+      name: "kafka-external"
+      port: 9093
+      targetPort: 9093
+  selector:
+    message-drive: kafka
